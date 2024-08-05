@@ -103,6 +103,11 @@ class TestLinq(unittest.TestCase):
         result = linq.zip_longest_with(['a', 'b'], fillvalue='x').to_list()
         self.assertEqual(result, [(1, 'a'), (2, 'b'), (3, 'x')])
 
+    def test_batch(self) -> None:
+        linq = Linq([1, 2, 3, 4, 5])
+        result = linq.batch(2).to_list()
+        self.assertEqual(result, [(1, 2), (3, 4), (5,)])
+
 
 if __name__ == '__main__':
     unittest.main()

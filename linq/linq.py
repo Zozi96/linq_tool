@@ -1,6 +1,10 @@
+import sys
+
 from contextlib import suppress
 from itertools import islice, groupby, takewhile, dropwhile, zip_longest
-from typing import Generator, Iterable, Callable, TypeVar, Generic, List, Optional, Tuple, Any, cast
+from typing import Generator, Iterable, Callable, Iterator, TypeVar, Generic, List, Optional, Tuple, Any, cast, Final
+
+PYTHON_VERSION: Final[Tuple[int, int]] = sys.version_info[:2]
 
 T = TypeVar('T')
 U = TypeVar('U')
@@ -354,3 +358,58 @@ class Linq(Generic[T]):
             [(1, 'a'), (2, 'b'), (3, 'x')]
         """
         return Linq(zip_longest(self.iterable, *others, fillvalue=fillvalue))
+
+    def batch(self, size: int) -> 'Linq[Tuple[T, ...]]':
+        """
+        Batches elements of the iterable into tuples of the specified size.
+
+        Args:
+            size (int): The size of each batch.
+
+        Returns:
+            Linq[Tuple[T, ...]]: A new Linq object with tuples of elements.
+
+        Example:
+            >>> linq = Linq([1, 2, 3, 4, 5, 6])
+            >>> result = linq.batch(2).to_list()
+            >>> print(result)
+            [(1, 2), (3, 4), (5, 6)]
+        """
+
+        def batch_generator(iterable: Iterable[T], size: int) -> Generator[Tuple[T, ...], None, None]:
+            """
+            Generates batches of elements from an iterable.
+
+            Args:
+                iterable (Iterable[T]): The iterable to generate batches from.
+                size (int): The size of each batch.
+
+            Yields:
+                Generator[Tuple[T, ...], None, None]: A generator that yields batches of elements as tuples.
+
+            Raises:
+                ValueError: If size is less than or equal to 0.
+
+            Example:
+                >>> numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+                >>> for batch in batch_generator(numbers, 3):
+                ...     print(batch)
+                (1, 2, 3)
+                (4, 5, 6)
+                (7, 8, 9)
+                (10,)
+            """
+            if size <= 0:
+                raise ValueError("Size must be greater than 0.")
+            it: Iterator[T] = iter(iterable)
+            while batch := tuple(islice(it, size)):
+                yield batch
+
+        if PYTHON_VERSION < (3, 12):
+            batcher = batch_generator
+        else:
+            from itertools import batched
+
+            batcher = batched
+
+        return Linq(batcher(self.iterable, size))

@@ -19,7 +19,6 @@ You can install Linq via pip:
 pip install linq-package
 ```
 
-
 ## Usage Examples
 
 ### Select
@@ -174,6 +173,13 @@ result = linq.zip_longest_with(['a', 'b'], fillvalue='x').to_list()
 print(result)  # Output: [(1, 'a'), (2, 'b'), (3, 'x')]
 ```
 
+### Batch
+
+```python
+linq = Linq([1, 2, 3, 4, 5, 6])
+result = linq.batch(2).to_list()
+print(result) # [(1, 2), (3, 4), (5, 6)]
+```
 
 ## License
 
