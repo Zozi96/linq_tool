@@ -173,3 +173,8 @@ linq = Linq([1, 2, 3])
 result = linq.zip_longest_with(['a', 'b'], fillvalue='x').to_list()
 print(result)  # Output: [(1, 'a'), (2, 'b'), (3, 'x')]
 ```
+
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
