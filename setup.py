@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setup(
     name='linq-tool',
-    version='0.1.0',
+    version='0.1.1',
     description='A LINQ-like library for Python',
     long_description=long_description,
     long_description_content_type='text/markdown',
