@@ -2,8 +2,6 @@ name: Release PyPi Package
 
 on:
   push:
-    branches:
-      - main
     tags:
       - "v*"
 
