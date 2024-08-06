@@ -16,7 +16,7 @@ Linq is a Python package that provides LINQ-like functionality for performing co
 You can install Linq via pip:
 
 ```bash
-pip install linq-package
+pip install linq-tool
 ```
 
 ## Usage Examples
