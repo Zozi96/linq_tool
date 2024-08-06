@@ -1,13 +1,16 @@
+from typing import Final
 from setuptools import setup, find_packages
 
 with open('README.md', 'r', encoding='utf-8') as fh:
     long_description = fh.read()
 
+DESCRIPTION: Final[str] = 'A LINQ-like library for Python inspired by C# LINQ using itertools internally.'
+
 setup(
     name='linq-tool',
     use_scm_version=True,
     setup_requires=['setuptools-scm'],
-    description='A LINQ-like library for Python',
+    description=DESCRIPTION,
     long_description=open('README.md').read(),
     long_description_content_type='text/markdown',
     author='Zozimo Fernandez',
