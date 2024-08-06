@@ -413,3 +413,20 @@ class Linq(Generic[T]):
             batcher = batched
 
         return Linq(batcher(self.iterable, size))
+
+    def __iter__(self) -> Iterator[T]:
+        """
+        Returns an iterator for the iterable.
+
+        Returns:
+            Iterator[T]: An iterator for the iterable.
+
+        Example:
+            >>> linq = Linq([1, 2, 3])
+            >>> for item in linq:
+            ...     print(item)
+            1
+            2
+            3
+        """
+        return iter(self.iterable)
