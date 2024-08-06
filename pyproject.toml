@@ -21,7 +21,6 @@ requires-python = ">=3.7"
 "Source" = "https://github.com/Zozi96/linq_tool"
 "Tracker" = "https://github.com/Zozi96/linq_tool/issues"
 
-
 [tool.pytest.ini_options]
 minversion = "6.0"
 addopts = "-ra -q"
