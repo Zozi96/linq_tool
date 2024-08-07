@@ -15,7 +15,7 @@ setup(
     long_description_content_type='text/markdown',
     author='Zozimo Fernandez',
     author_email='zozi.fer96@gmail.com',
-    url='https://github.com/Zozi96/linq-tool',
+    url='https://github.com/Zozi96/linq_tool',
     packages=find_packages(),
     classifiers=[
         'Programming Language :: Python :: 3',
