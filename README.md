@@ -21,6 +21,16 @@ pip install linq-tool
 
 ## Usage Examples
 
+You might create a Linq instance and iterate throughout the object
+
+```python
+linq = Linq([1, 2, 3])
+for item in linq:
+    print(item) # 1
+```
+
+The object is an iterable, if you need to use it as list, you need to invoke the `to_list` method
+
 ### Select
 
 ```python
