@@ -430,3 +430,17 @@ class Linq(Generic[T]):
             3
         """
         return iter(self.iterable)
+
+    def __repr__(self) -> str:
+        """
+        Returns a string representation of the Linq object.
+
+        Returns:
+            str: A string representation of the Linq object.
+
+        Example:
+            >>> linq = Linq([1, 2, 3])
+            >>> repr(linq)
+            'Linq([1, 2, 3])'
+        """
+        return f"Linq({list(self.iterable)})"
