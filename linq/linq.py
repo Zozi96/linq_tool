@@ -443,4 +443,8 @@ class Linq(Generic[T]):
             >>> repr(linq)
             'Linq([1, 2, 3])'
         """
-        return f"Linq({list(self.iterable)})"
+        limit: int = 10
+        iterator: Iterator[T] = iter(self.iterable)
+        preview: List[T] = list(islice(iterator, limit))
+        repr_s: str = ', '.join(map(repr, preview)) if len(preview) < limit else f'{", ".join(map(repr, preview))}, ...'
+        return f'Linq([{repr_s}])'
