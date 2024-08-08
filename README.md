@@ -1,5 +1,9 @@
 # Linq Tool
 
+![Build Status](https://github.com/Zozi96/linq_tool/actions/workflows/tests.yml/badge.svg)
+![PyPI Version](https://img.shields.io/pypi/v/linq-tool.svg)
+![License](https://img.shields.io/github/license/Zozi96/linq_tool.svg)
+
 Linq is a Python package that provides LINQ-like functionality for performing common operations on iterables. Inspired by LINQ from C#, this package allows you to easily manipulate collections in a functional style.
 
 ## Features
