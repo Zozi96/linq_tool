@@ -33,20 +33,20 @@ class TestLinq(unittest.TestCase):
 
     def test_first_or_default(self) -> None:
         linq = Linq([1, 2, 3])
-        result = linq.first_or_default()
+        result = linq.first()
         self.assertEqual(result, 1)
 
         empty_linq = Linq([])
-        result = empty_linq.first_or_default(42)
+        result = empty_linq.first(42)
         self.assertEqual(result, 42)
 
     def test_last_or_default(self) -> None:
         linq = Linq([1, 2, 3])
-        result = linq.last_or_default()
+        result = linq.last()
         self.assertEqual(result, 3)
 
         empty_linq = Linq([])
-        result = empty_linq.last_or_default(42)
+        result = empty_linq.last(42)
         self.assertEqual(result, 42)
 
     def test_any(self) -> None:
@@ -107,6 +107,26 @@ class TestLinq(unittest.TestCase):
         linq = Linq([1, 2, 3, 4, 5])
         result = linq.batch(2).to_list()
         self.assertEqual(result, [(1, 2), (3, 4), (5,)])
+
+    def test_chunk_into(self) -> None:
+        linq = Linq([1, 2, 3, 4, 5])
+        result = linq.chunk_into(2).to_list()
+        self.assertEqual(result, [[1, 2], [3, 4], [5]])
+
+    def test_consecutive_pairs(self) -> None:
+        linq = Linq([1, 2, 3, 4])
+        result = linq.consecutive_pairs().to_list()
+        self.assertEqual(result, [(1, 2), (2, 3), (3, 4)])
+
+    def test_unique_seen(self) -> None:
+        linq = Linq([1, 2, 2, 3, 3, 3])
+        result = linq.unique_seen().to_list()
+        self.assertEqual(result, [1, 2, 3])
+
+    def test_interleave_with(self) -> None:
+        linq = Linq([1, 2, 3])
+        result = linq.interleave_with(['a', 'b', 'c']).to_list()
+        self.assertEqual(result, [1, 'a', 2, 'b', 3, 'c'])
 
 
 if __name__ == '__main__':

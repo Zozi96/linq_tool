@@ -4,7 +4,9 @@ from setuptools import setup, find_packages
 with open('README.md', 'r', encoding='utf-8') as fh:
     long_description = fh.read()
 
-DESCRIPTION: Final[str] = 'A LINQ-like library for Python inspired by C# LINQ using itertools internally.'
+DESCRIPTION: Final[str] = (
+    'A LINQ-like library for Python inspired by C# LINQ using itertools and more-itertools internally.'
+)
 
 setup(
     name='linq-tool',
@@ -22,5 +24,6 @@ setup(
         'License :: OSI Approved :: MIT License',
         'Operating System :: OS Independent',
     ],
-    python_requires='>=3.7',
+    python_requires='>=3.8',
+    install_requires=['more-itertools'],
 )
