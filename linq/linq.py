@@ -1,8 +1,9 @@
 import sys
 
-from contextlib import suppress
 from itertools import islice, groupby, takewhile, dropwhile, zip_longest
 from typing import Generator, Iterable, Callable, Iterator, TypeVar, Generic, List, Optional, Tuple, Any, cast, Final
+
+from more_itertools import first, interleave_longest, last, chunked, unique_everseen
 
 PYTHON_VERSION: Final[Tuple[int, int]] = sys.version_info[:2]
 
@@ -127,7 +128,7 @@ class Linq(Generic[T]):
         """
         return list(self.iterable)
 
-    def first_or_default(self, default: Optional[T] = None) -> Optional[T]:
+    def first(self, default: Optional[T] = None) -> Optional[T]:
         """
         Returns the first element of the iterable or the default value if the iterable is empty.
 
@@ -148,9 +149,9 @@ class Linq(Generic[T]):
             >>> print(result)
             42
         """
-        return next(iter(self.iterable), default)
+        return first(iter(self.iterable), default=default)
 
-    def last_or_default(self, default: Optional[T] = None) -> Optional[T]:
+    def last(self, default: Optional[T] = None) -> Optional[T]:
         """
         Returns the last element of the iterable or the default value if the iterable is empty.
 
@@ -171,9 +172,7 @@ class Linq(Generic[T]):
             >>> print(result)
             42
         """
-        with suppress(StopIteration):
-            return next(reversed(list(self.iterable)), default)
-        return default
+        return last(iter(self.iterable), default=default)
 
     def any(self, predicate: Callable[[T], bool] = lambda x: True) -> bool:
         """
@@ -376,43 +375,108 @@ class Linq(Generic[T]):
             [(1, 2), (3, 4), (5, 6)]
         """
 
-        def batch_generator(iterable: Iterable[T], size: int) -> Generator[Tuple[T, ...], None, None]:
-            """
-            Generates batches of elements from an iterable.
-
-            Args:
-                iterable (Iterable[T]): The iterable to generate batches from.
-                size (int): The size of each batch.
-
-            Yields:
-                Generator[Tuple[T, ...], None, None]: A generator that yields batches of elements as tuples.
-
-            Raises:
-                ValueError: If size is less than or equal to 0.
-
-            Example:
-                >>> numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
-                >>> for batch in batch_generator(numbers, 3):
-                ...     print(batch)
-                (1, 2, 3)
-                (4, 5, 6)
-                (7, 8, 9)
-                (10,)
-            """
-            if size <= 0:
-                raise ValueError("Size must be greater than 0.")
-            it: Iterator[T] = iter(iterable)
-            while batch := tuple(islice(it, size)):
-                yield batch
-
         if PYTHON_VERSION < (3, 12):
-            batcher = batch_generator
+            from more_itertools import batched
         else:
             from itertools import batched
 
-            batcher = batched
+        return Linq(batched(self.iterable, size))
 
-        return Linq(batcher(self.iterable, size))
+    def chunk_into(self, size: int, strict: bool = False) -> 'Linq[List[T]]':
+        """
+        Chunks the iterable into lists of the specified size.
+
+        Args:
+            size (int): The size of each chunk.
+            strict (bool, optional): If True, raises an error if the iterable cannot be evenly divided into chunks of the specified size. Defaults to False.
+
+        Returns:
+            Linq[List[T]]: A new Linq object containing the chunked lists.
+
+        """
+        return Linq(chunked(self.iterable, size, strict))
+
+    def consecutive_pairs(self) -> 'Linq[Tuple[T, T]]':
+        """
+        Returns an iterable of consecutive pairs of elements.
+
+        Returns:
+            Linq[Tuple[T, T]]: A new Linq object with consecutive pairs of elements.
+
+        Example:
+            >>> linq = Linq([1, 2, 3, 4])
+            >>> result = linq.consecutive_pairs().to_list()
+            >>> print(result)
+            [(1, 2), (2, 3), (3, 4)]
+        """
+        if PYTHON_VERSION < (3, 10):
+            from more_itertools import pairwise
+        else:
+            from itertools import pairwise
+        return Linq(pairwise(self.iterable))
+
+    def unique_seen(self, key: Optional[Callable[[T], Any]] = None) -> 'Linq[T]':
+        """
+        Returns unique elements in the order they are first seen, based on a specified key function.
+
+        Args:
+            key (Optional[Callable[[T], Any]]): A function that takes an element as input and returns a value
+                to be compared for uniqueness. Defaults to None, meaning the elements themselves are compared.
+
+        Returns:
+            Linq[T]: A new Linq object with unique elements in the order they were first seen.
+
+        Examples:
+
+            # Example 1: Unique elements based on their length
+            >>> linq = Linq(['apple', 'banana', 'pear', 'apricot', 'peach'])
+            >>> result = linq.unique_seen(key=len).to_list()
+            >>> print(result)
+            ['apple', 'banana', 'apricot']
+
+            # Example 2: Unique elements based on the first character
+            >>> linq = Linq(['apple', 'banana', 'avocado', 'blueberry', 'cherry'])
+            >>> result = linq.unique_seen(key=lambda x: x[0]).to_list()
+            >>> print(result)
+            ['apple', 'banana', 'cherry']
+
+            # Example 3: Unique elements based on a dictionary attribute
+            >>> linq = Linq([
+            ...     {'name': 'apple', 'color': 'red'},
+            ...     {'name': 'banana', 'color': 'yellow'},
+            ...     {'name': 'cherry', 'color': 'red'},
+            ...     {'name': 'pear', 'color': 'green'}
+            ... ])
+            >>> result = linq.unique_seen(key=lambda x: x['color']).to_list()
+            >>> print(result)
+            [{'name': 'apple', 'color': 'red'}, {'name': 'banana', 'color': 'yellow'}, {'name': 'pear', 'color': 'green'}]
+
+            # Example 4: Unique elements ignoring case sensitivity
+            >>> linq = Linq(['Apple', 'banana', 'apple', 'Banana', 'CHERRY'])
+            >>> result = linq.unique_seen(key=lambda x: x.lower()).to_list()
+            >>> print(result)
+            ['Apple', 'banana', 'CHERRY']
+        """
+        return Linq(unique_everseen(self.iterable, key=key))
+
+    def interleave_with(self, *others: Iterable) -> 'Linq[T]':
+        """
+        Interleaves the elements of the iterable with the elements of other iterables, filling with None
+        if one iterable is shorter.
+
+        Args:
+            *others (Iterable[T]): Other iterables to interleave with.
+
+        Returns:
+            Linq[T]: A new Linq object with interleaved elements.
+
+        Example:
+            >>> linq = Linq([1, 2, 3])
+            >>> result = linq.interleave_with(['a', 'b'], ['x', 'y', 'z']).to_list()
+            >>> print(result)
+            [1, 'a', 'x', 2, 'b', 'y', 3, None, 'z']
+        """
+        return Linq(interleave_longest(self.iterable, *others))
 
     def __iter__(self) -> Iterator[T]:
         """
